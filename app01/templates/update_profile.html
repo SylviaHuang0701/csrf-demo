@@ -1,0 +1,57 @@
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>更新个人资料</title>
+    <style>
+        .alert {
+            padding: 20px;
+            color: white;
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            display: none;
+        }
+        .alert-success {
+            background-color: green;
+        }
+        .alert-error {
+            background-color: red;
+        }
+    </style>
+</head>
+<body>
+    <h1>更新个人资料</h1>
+    <form method="post" action="{% url 'users:update_profile' %}">
+        {% csrf_token %}
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required>
+        <button type="submit">更新</button>
+    </form>
+
+    <!-- 消息弹窗的容器 -->
+    <div id="messageAlert" class="alert" style="display: none;"></div>
+
+    <script>
+        // 当页面加载完成后执行
+        window.onload = function() {
+            // 检查是否有消息
+            if (document.querySelector('#messageAlert') && document.querySelector('.messages')) {
+                // 获取消息内容
+                var messages = document.querySelector('.messages').innerHTML;
+                if (messages) {
+                    // 显示消息弹窗
+                    document.querySelector('#messageAlert').innerHTML = messages;
+                    document.querySelector('#messageAlert').style.display = 'block';
+
+                    // 设置定时器，3秒后隐藏消息弹窗
+                    setTimeout(function() {
+                        document.querySelector('#messageAlert').style.display = 'none';
+                    }, 3000);
+                }
+            }
+        };
+    </script>
+</body>
+</html>

