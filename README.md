@@ -74,3 +74,67 @@ python3 -m http.server 8080
 ## 参考
 
 - [Django 官方文档 - 跨站请求伪造保护](https://docs.djangoproject.com/en/stable/ref/csrf/)
+
+## TODO
+1. 模拟修改数据库操作
+当前的演示只是简单地修改用户的电子邮件地址，但并未直接展示数据库层面的变化。当 CSRF 攻击成功时，可以在数据库中直接查询并展示被篡改的数据。例如，攻击者成功修改用户电子邮件后，可以在 Django 控制台或通过一个视图直接显示数据库中存储的用户信息。
+
+``` python
+from django.db import connection
+
+def show_database(request):
+    with connection.cursor() as cursor:
+        cursor.execute("SELECT username, email FROM auth_user WHERE username = %s", [request.user.username])
+        result = cursor.fetchone()
+    return HttpResponse(f"当前用户：{result[0]}, 邮箱：{result[1]}")
+```
+
+2. 增加恶意请求的数据多样性/触发更复杂的数据库操作
+在演示中，您只修改了一个电子邮件字段，可以进一步通过恶意表单模拟更多种类的攻击。例如：
+
+更改用户密码：攻击者可以通过 CSRF 攻击尝试修改用户的密码字段，模拟重置密码的攻击。
+
+改变用户角色或权限：通过修改用户的 is_staff 或 is_superuser 字段，展示攻击者如何提升自己的权限。
+删除某个用户的账户
+
+例如，可以修改恶意表单，使其包含更多字段（如 is_staff）：
+
+``` html
+<form id="csrf-form" method="post" action="http://127.0.0.1:8000/users/update_profile/">
+    <input type="hidden" name="email" value="attacker@example.com">
+    <input type="hidden" name="is_staff" value="True"> <!-- 攻击者试图将用户设为管理员 -->
+</form>
+```
+3. 展示 CSRF 防护措施
+
+启用 CSRF 防护：首先，恢复 Django 默认的 CSRF 防护（启用 CsrfViewMiddleware）。然后，展示通过 CSRF token 来防止恶意请求。
+
+修改表单来使用 CSRF Token：
+
+``` html
+<form method="post" action="/users/update_profile/">
+    {% csrf_token %}
+    <input type="email" name="email" value="new_email@example.com">
+    <button type="submit">更新</button>
+</form>
+```
+当 CSRF token 被正确使用时，恶意网页的攻击无法成功提交请求，Django 会返回 CSRF 保护错误。
+
+4. 数据库层面的日志记录
+可以展示如何在数据库中记录异常或潜在的攻击事件。例如，可以在用户资料更新时，向数据库的日志表插入记录，或者在 update_profile 视图中增加攻击日志功能，记录恶意请求的源 IP 和其他信息。
+
+``` python
+from django.utils.timezone import now
+from app01.models import AttackLog
+
+def update_profile(request):
+    if request.method == 'POST':
+        # 攻击者尝试提交的操作
+        new_email = request.POST.get('email')
+        # 写入攻击日志
+        AttackLog.objects.create(user=request.user, action="修改邮箱", ip=request.META.get('REMOTE_ADDR'), timestamp=now())
+        request.user.email = new_email
+        request.user.save()
+        return HttpResponse("Profile updated successfully")
+    return render(request, 'update_profile.html')
+```
