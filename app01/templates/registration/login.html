@@ -3,4 +3,5 @@
     {% csrf_token %}
     {{ form.as_p }}
     <button type="submit">Login</button>
+    <button type="button"onclick="location.href='{% url 'home' %}'">Return to home</button>
 </form>
